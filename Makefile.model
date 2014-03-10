@@ -1,0 +1,42 @@
+
+BINDIR=bc
+RESDIR=res
+BCFILES=${wildcard $(BINDIR)/*.bc}
+RESFILES_ALL=$(BCFILES:$(BINDIR)/%.bc=$(RESDIR)/%.all.res)
+RESFILES_NARROWING=$(BCFILES:$(BINDIR)/%.bc=$(RESDIR)/%.narrowing.res)
+
+all: timestamp.txt
+
+compare_all: timestamp_all.txt
+compare_narrowing: timestamp_narrowing.txt
+
+$(RESDIR): 
+	@mkdir $(RESDIR)
+
+$(RESDIR)/%.all.res:  $(BINDIR)/%.bc | $(RESDIR)
+	pagai -i $< -o $@ -s z3_api -c lw+pf -c pf_incr -c pf -c g -c lw -c s --timeout 600 --quiet --force-old-output
+
+$(RESDIR)/%.narrowing.res:  $(BINDIR)/%.bc | $(RESDIR)
+	pagai -i $< -o $@ -M -t s --domain pk --domain2 pk --timeout 600 --quiet --force-old-output
+
+timestamp.txt: $(BCFILES)
+	@touch $@
+
+cmp_all.techniques.png: $(RESFILES_ALL)
+	@process_results.py .. $(PWD) cmp_all $(RESFILES_ALL)
+
+cmp_narrowing.techniques.png: $(RESFILES_NARROWING)
+	@process_results.py .. $(PWD) cmp_narrowing $(RESFILES_NARROWING)
+
+timestamp_all.txt: $(RESFILES_ALL) cmp_all.techniques.png
+	@touch $@
+
+timestamp_narrowing.txt: $(RESFILES_NARROWING) cmp_narrowing.techniques.png
+	@touch $@
+
+clean:
+	rm $(RESDIR)/* timestamp.txt timestamp_all.txt timestamp_narrowing.txt *.png
+
+realclean: clean
+	rm $(BINDIR)/*.bc
+
