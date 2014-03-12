@@ -1,0 +1,13 @@
+By Diego Caminha @ Verimag, 24/05/2012
+
+This code inserts counter variables in ssa form in each basic block of a program aiming to be used for the WCET problem.
+
+The code is mainly a LLVM pass that reads llvm bitcode and output llvm assembly language.
+
+In the WCET solving enviroment, it is supposed to be used in this sequence:
+
+$ instructionsWCET -i file.bc > modified_file.ll
+$ llvm-as modified_file.ll -o modified_file.bc
+$ pagai -i modified_file.bc
+
+The last "CostCounter_*" variable indicates the WCET value. Currently, the value is not accurate and is just the number of instructions.
