@@ -27,7 +27,6 @@
  */
 
 int Array[MAXDIM], Seed;
-int factor;
 
 main()
 {
@@ -73,13 +72,7 @@ int Array[];
 {
    int  Index, fact;
 
-#ifdef WORSTCASE
-   factor = -1;
-#else
-   factor = 1;
-#endif
-
-fact = factor;
+fact = -1;
 for (Index = 1; Index <= NUMELEMS; Index ++)
     Array[Index] = Index*fact * KNOWN_VALUE;
 }

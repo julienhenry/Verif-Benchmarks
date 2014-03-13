@@ -20,7 +20,7 @@ $(INSTRUMENTEDBCDIR)%.bc: $(BCDIR)%.bc
 $(BCDIR)%.bc: %.c
 	compile_llvm.sh -I -i $*.c -o $@
 	llvm-dis $@ -o $*.ll
-	python $(SCRIPTDIR)/charcute_bitcode.py $*.ll > $*.opt.ll
+	python $(SCRIPTDIR)/charcute_bitcode.py --withinputfunctions $*.ll > $*.opt.ll
 	llvm-as $*.opt.ll -o $@
 	rm $*.opt.ll $*.ll
 

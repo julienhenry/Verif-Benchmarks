@@ -5,10 +5,11 @@ BCFILES=${wildcard $(BINDIR)*.bc}
 RESFILES_ALL=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.all.res)
 RESFILES_NARROWING=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.narrowing.res)
 
-all: timestamp.txt
+TABLE_NARROWING=table_N_S.tex
+all: $(TABLE_NARROWING)
 
 compare_all: timestamp_all.txt
-compare_narrowing: timestamp_narrowing.txt
+compare_narrowing: $(TABLE_NARROWING)
 
 $(RESDIR): 
 	@mkdir $(RESDIR)
@@ -28,14 +29,14 @@ cmp_all.techniques.png: $(RESFILES_ALL)
 cmp_narrowing.techniques.png: $(RESFILES_NARROWING)
 	@process_results.py .. $(PWD) cmp_narrowing $(RESFILES_NARROWING)
 
+$(TABLE_NARROWING): $(RESFILES_NARROWING) cmp_narrowing.techniques.png 
+	@build_table_narrowing.py results.json > $@
+
 timestamp_all.txt: $(RESFILES_ALL) cmp_all.techniques.png
 	@touch $@
 
-timestamp_narrowing.txt: $(RESFILES_NARROWING) cmp_narrowing.techniques.png
-	@touch $@
-
 clean:
-	rm $(RESDIR)*.res timestamp.txt timestamp_all.txt timestamp_narrowing.txt *.png
+	rm -f $(RESDIR)*.res timestamp.txt timestamp_all.txt *.png
 
 realclean: clean
 	rm $(BINDIR)*.bc
