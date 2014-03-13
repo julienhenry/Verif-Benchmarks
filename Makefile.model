@@ -5,11 +5,24 @@ BCFILES=${wildcard $(BINDIR)*.bc}
 RESFILES_ALL=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.all.res)
 RESFILES_NARROWING=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.narrowing.res)
 
+# for comparing abstract domains
+RESFILES_PK_OCT=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.domain.pk.oct.res)
+RESFILES_PK_BOX=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.domain.pk.box.res)
+RESFILES_OCT_BOX=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.domain.oct.box.res)
+RESFILES_PKGRID_PK=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.domain.pkgrid.pk.res)
+RESFILES_PKEQ_PK=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.domain.pkeq.pk.res)
+RESFILES_PPL_POLY_BAGNARA_PPL_POLY=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.domain.ppl_poly_bagnara.ppl_poly.res)
+RESFILES_DOMAINS= $(RESFILES_PK_OCT) $(RESFILES_PK_BOX) $(RESFILES_OCT_BOX) $(RESFILES_PKGRID_PK) $(RESFILES_PKEQ_PK) $(RESFILES_PPL_POLY_BAGNARA_PPL_POLY)
+
 TABLE_NARROWING=table_N_S.tex
-all: $(TABLE_NARROWING)
+TABLE_DOMAINS=table_domains.tex
+
+all: compare_narrowing compare_domains
 
 compare_all: timestamp_all.txt
+
 compare_narrowing: $(TABLE_NARROWING)
+compare_domains: $(TABLE_DOMAINS)
 
 $(RESDIR): 
 	@mkdir $(RESDIR)
@@ -41,3 +54,32 @@ clean:
 realclean: clean
 	rm $(BINDIR)*.bc
 
+########## COMPARISON OF THE ABSTRACT DOMAINS
+
+TECHNIQUE=s
+TECHNIQUE_NAME=S
+
+$(RESDIR)%.domain.pk.oct.res:  $(BINDIR)%.bc | $(RESDIR)
+	pagai -i $< -o $@ -C -t $(TECHNIQUE) --domain pk --domain2 oct --timeout 600 --quiet --force-old-output
+
+$(RESDIR)%.domain.pk.box.res:  $(BINDIR)%.bc | $(RESDIR)
+	pagai -i $< -o $@ -C -t $(TECHNIQUE) --domain pk --domain2 box --timeout 600 --quiet --force-old-output
+
+$(RESDIR)%.domain.oct.box.res:  $(BINDIR)%.bc | $(RESDIR)
+	pagai -i $< -o $@ -C -t $(TECHNIQUE) --domain oct --domain2 box --timeout 600 --quiet --force-old-output
+
+$(RESDIR)%.domain.pkgrid.pk.res:  $(BINDIR)%.bc | $(RESDIR)
+	pagai -i $< -o $@ -C -t $(TECHNIQUE) --domain pkgrid --domain2 pk --timeout 600 --quiet --force-old-output
+
+$(RESDIR)%.domain.pkeq.pk.res:  $(BINDIR)%.bc | $(RESDIR)
+	pagai -i $< -o $@ -C -t $(TECHNIQUE) --domain pkeq --domain2 pk --timeout 600 --quiet --force-old-output
+
+$(RESDIR)%.domain.ppl_poly_bagnara.ppl_poly.res:  $(BINDIR)%.bc | $(RESDIR)
+	pagai -i $< -o $@ -C -t $(TECHNIQUE) --domain ppl_poly_bagnara --domain2 ppl_poly --timeout 600 --quiet --force-old-output
+
+cmp_domains.png: $(RESFILES_DOMAINS)
+	@process_results_domains.py .. $(PWD) cmp_domains $(RESFILES_DOMAINS)
+	@touch $@
+
+$(TABLE_DOMAINS): $(RESFILES_DOMAINS) cmp_domains.png 
+	@build_table_domains.py $(TECHNIQUE_NAME) results.json > $@
