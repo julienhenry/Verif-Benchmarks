@@ -12,6 +12,8 @@ withinput = args.withinputfunctions
 output=""
 input=""
 locals=""
+globaldef=""
+metadata=""
 
 nbfunctions=0
 
@@ -35,8 +37,13 @@ for line in open(args.filename):
         locals += "  store " + ctype + " %tmp" + variable + ", " + ctype + "* %" + variable+ "\n"
     variables.add(variable)
     types.add(ctype)
+    globaldef += line + "\n"
   else:
-    output += line + "\n"
+    match = re.match('!([0-9]+) = metadata !{[^\n]*',line)
+    if match:
+        metadata += line + "\n"
+    else:
+        output += line + "\n"
 
     # check if the line defines a function
     # if the bitcode contains several functions, we cannot move globals to
@@ -44,6 +51,7 @@ for line in open(args.filename):
     match=re.search('define (?:[A-Za-z0-9_.]+) @([A-Za-z0-9_.]+)(?:[^\n]*){',line)
     if match:
         nbfunctions+=1
+
 
 
 for v in variables:
@@ -62,10 +70,13 @@ else:
 
 output = output.replace(first_label+':\n',first_label+':\n'+locals)
 
+output = output.replace('\n\n', '\n\n'+globaldef,1)
+
 if withinput:
     for t in types:
         output += "declare " + t + " @gen_" + t + "() nounwind\n"
 
+output += metadata
 #print variables
 #print locals
 

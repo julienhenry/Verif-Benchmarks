@@ -6,12 +6,22 @@ LLFILES=$(BCFILES:bc/%.bc=ll/%.ll)
 
 all: $(BCFILES) $(LLFILES)
 
-bc/%.bc: %.c
-	compile_llvm.sh -I -i $*.c -o $@
+bc-undef/%.bc: %.c
+	compile_llvm.sh -I -g -i $*.c -o $@
 	llvm-dis $@ -o $*.ll
-	python $(SCRIPTDIR)/charcute_bitcode.py $*.ll > $*.opt.ll
+	python $(SCRIPTDIR)/charcute_bitcode.py --withinputfunctions $*.ll > $*.opt.ll
 	llvm-as $*.opt.ll -o $@
 	rm $*.opt.ll $*.ll
+
+bc/%.bc: %.c
+	compile_llvm.sh -N -g -I -i $*.c -o $@
+	llvm-dis $@ -o $*.ll
+	python $(SCRIPTDIR)/charcute_bitcode.py --withinputfunctions $*.ll > $*.opt.ll
+	llvm-as $*.opt.ll -o $@
+	rm $*.opt.ll $*.ll
+
+ll-undef/%.ll: bc/%.bc
+	llvm-dis $< -o $@
 
 ll/%.ll: bc/%.bc
 	llvm-dis $< -o $@
