@@ -26,7 +26,7 @@ for line in open(args.filename):
   line=line.rstrip()
   input += line + "\n"
   #match=re.match('@([A-Za-z0-9_.]+) =(?: external| internal| common)?(?: unnamed_addr)? global (float|double|i32|i16|i8|i1) ?([0-9.e+-]+|true|false)?(?:, align 4)?', line)
-  match=re.match('@([A-Za-z0-9_.]+) =(?: external| internal| common)?(?: unnamed_addr)? (?:global|constant)? (float|double|i32|i16|i8|i1)[^\*] ?([A-Z0-9.e+-x]+|true|false)?(?:, align 4)?', line)
+  match=re.match('@([A-Za-z0-9_.]+) =(?: external| internal| common)?(?: unnamed_addr)? (?:global|constant)? (float|double|i32|i16|i8|i1)[^\*] ?([A-Z0-9.e+-x]+|true|false)?(?:, align 4)', line)
   if match:
     variable = match.group(1)
     ctype = match.group(2)
