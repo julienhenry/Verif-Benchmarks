@@ -30,11 +30,12 @@ for line in open(args.filename):
   if match:
     variable = match.group(1)
     ctype = match.group(2)
-    #initializer = match.group(3)
+    initializer = match.group(3)
     locals += "  %" + variable + " = alloca " + ctype + "\n"
     if withinput:
         locals += "  %tmp" + variable + " = call " + ctype + " @gen_" + ctype + "()"+ "\n"
         locals += "  store " + ctype + " %tmp" + variable + ", " + ctype + "* %" + variable+ "\n"
+    locals += "  store " + ctype + " " + initializer + ", " + ctype + "* %" + variable+ "\n"
     variables.add(variable)
     types.add(ctype)
     globaldef += line + "\n"

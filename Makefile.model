@@ -1,16 +1,17 @@
-BINDIR=bc/
+BCDIR=bc/
 RESDIR=res/
-BCFILES=${wildcard $(BINDIR)*.bc}
-RESFILES_ALL=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.all.res)
-RESFILES_NARROWING=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.narrowing.res)
+PAGAI=pagai.sh
+BCFILES=${wildcard $(BCDIR)*.bc}
+RESFILES_ALL=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.all.res)
+RESFILES_NARROWING=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.narrowing.res)
 
 # for comparing abstract domains
-RESFILES_PK_OCT=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.domain.pk.oct.res)
-RESFILES_PK_BOX=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.domain.pk.box.res)
-RESFILES_OCT_BOX=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.domain.oct.box.res)
-RESFILES_PKGRID_PK=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.domain.pkgrid.pk.res)
-RESFILES_PKEQ_PK=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.domain.pkeq.pk.res)
-RESFILES_PPL_POLY_BAGNARA_PPL_POLY=$(BCFILES:$(BINDIR)%.bc=$(RESDIR)%.domain.ppl_poly_bagnara.ppl_poly.res)
+RESFILES_PK_OCT=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.pk.oct.res)
+RESFILES_PK_BOX=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.pk.box.res)
+RESFILES_OCT_BOX=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.oct.box.res)
+RESFILES_PKGRID_PK=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.pkgrid.pk.res)
+RESFILES_PKEQ_PK=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.pkeq.pk.res)
+RESFILES_PPL_POLY_BAGNARA_PPL_POLY=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.ppl_poly_bagnara.ppl_poly.res)
 RESFILES_DOMAINS= $(RESFILES_PK_OCT) $(RESFILES_PK_BOX) $(RESFILES_OCT_BOX) $(RESFILES_PKGRID_PK) $(RESFILES_PKEQ_PK) $(RESFILES_PPL_POLY_BAGNARA_PPL_POLY)
 
 TABLE_NARROWING=table_N_S.tex
@@ -30,14 +31,14 @@ DOMAIN=pk
 $(RESDIR): 
 	@mkdir $(RESDIR)
 
-$(RESDIR)%.all.res:  $(BINDIR)%.bc | $(RESDIR)
+$(RESDIR)%.all.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	pagai -i $< -o $@ -s z3_api --domain $(DOMAIN) -c lw+pf -c pf_incr -c pf -c g -c lw -c s --timeout 600 --quiet --force-old-output
+	$(PAGAI) -i $< -a " -o $@ -s z3_api --domain $(DOMAIN) -c lw+pf -c pf_incr -c pf -c g -c lw -c s --timeout 600 --quiet --force-old-output "
 	@echo "$@ finished..."
 
-$(RESDIR)%.narrowing.res:  $(BINDIR)%.bc | $(RESDIR)
+$(RESDIR)%.narrowing.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	pagai -i $< -o $@ -M -t s --domain $(DOMAIN) --domain2 $(DOMAIN) --timeout 600 --quiet --force-old-output
+	$(PAGAI) -i $< -a " -o $@ -M -t s --domain $(DOMAIN) --domain2 $(DOMAIN) --timeout 600 --quiet --force-old-output "
 	@echo "$@ finished..."
 
 timestamp.txt: $(BCFILES)
@@ -59,41 +60,41 @@ clean:
 	rm -f $(RESDIR)*.res timestamp.txt timestamp_all.txt *.png
 
 realclean: clean
-	rm $(BINDIR)*.bc
+	rm $(BCDIR)*.bc
 
 ########## COMPARISON OF THE ABSTRACT DOMAINS
 
 TECHNIQUE=s
 TECHNIQUE_NAME=S
 
-$(RESDIR)%.domain.pk.oct.res:  $(BINDIR)%.bc | $(RESDIR)
+$(RESDIR)%.domain.pk.oct.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	pagai -i $< -o $@ -C -t $(TECHNIQUE) --domain pk --domain2 oct --timeout 600 --quiet --force-old-output
+	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain pk --domain2 oct --timeout 600 --quiet --force-old-output "
 	@echo "$@ finished..."
 
-$(RESDIR)%.domain.pk.box.res:  $(BINDIR)%.bc | $(RESDIR)
+$(RESDIR)%.domain.pk.box.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	pagai -i $< -o $@ -C -t $(TECHNIQUE) --domain pk --domain2 box --timeout 600 --quiet --force-old-output
+	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain pk --domain2 box --timeout 600 --quiet --force-old-output "
 	@echo "$@ finished..."
 
-$(RESDIR)%.domain.oct.box.res:  $(BINDIR)%.bc | $(RESDIR)
+$(RESDIR)%.domain.oct.box.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	pagai -i $< -o $@ -C -t $(TECHNIQUE) --domain oct --domain2 box --timeout 600 --quiet --force-old-output
+	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain oct --domain2 box --timeout 600 --quiet --force-old-output "
 	@echo "$@ finished..."
 
-$(RESDIR)%.domain.pkgrid.pk.res:  $(BINDIR)%.bc | $(RESDIR)
+$(RESDIR)%.domain.pkgrid.pk.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	pagai -i $< -o $@ -C -t $(TECHNIQUE) --domain pkgrid --domain2 pk --timeout 600 --quiet --force-old-output
+	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain pkgrid --domain2 pk --timeout 600 --quiet --force-old-output "
 	@echo "$@ finished..."
 
-$(RESDIR)%.domain.pkeq.pk.res:  $(BINDIR)%.bc | $(RESDIR)
+$(RESDIR)%.domain.pkeq.pk.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	pagai -i $< -o $@ -C -t $(TECHNIQUE) --domain pkeq --domain2 pk --timeout 600 --quiet --force-old-output
+	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain pkeq --domain2 pk --timeout 600 --quiet --force-old-output "
 	@echo "$@ finished..."
 
-$(RESDIR)%.domain.ppl_poly_bagnara.ppl_poly.res:  $(BINDIR)%.bc | $(RESDIR)
+$(RESDIR)%.domain.ppl_poly_bagnara.ppl_poly.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	pagai -i $< -o $@ -C -t $(TECHNIQUE) --domain ppl_poly_bagnara --domain2 ppl_poly --timeout 600 --quiet --force-old-output
+	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain ppl_poly_bagnara --domain2 ppl_poly --timeout 600 --quiet --force-old-output "
 	@echo "$@ finished..."
 
 cmp_domains.png: $(RESFILES_DOMAINS)
