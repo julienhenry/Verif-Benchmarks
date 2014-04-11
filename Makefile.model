@@ -4,6 +4,7 @@ PAGAI=pagai.sh
 BCFILES=${wildcard $(BCDIR)*.bc}
 RESFILES_ALL=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.all.res)
 RESFILES_NARROWING=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.narrowing.res)
+RESFILES_SVCOMP=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.svcomp.res)
 
 # for comparing abstract domains
 RESFILES_PK_OCT=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.pk.oct.res)
@@ -16,6 +17,8 @@ RESFILES_DOMAINS= $(RESFILES_PK_OCT) $(RESFILES_PK_BOX) $(RESFILES_OCT_BOX) $(RE
 
 TABLE_NARROWING=table_N_S.tex
 TABLE_DOMAINS=table_domains.tex
+TABLE_SVCOMP=table_svcomp.tex
+JSON_SVCOMP=results_svcomp.json
 
 all: compare_narrowing compare_domains
 
@@ -24,6 +27,7 @@ compare_all: timestamp_all.txt
 compare_narrowing: $(TABLE_NARROWING)
 compare_domains: $(TABLE_DOMAINS)
 
+svcomp: $(TABLE_SVCOMP)
 
 # abstract domain used for comparing techniques
 DOMAIN=pk
@@ -61,6 +65,20 @@ clean:
 
 realclean: clean
 	rm $(BCDIR)*.bc
+
+########## SVCOMP style
+
+$(RESDIR)%.svcomp.res:  $(BCDIR)%.bc | $(RESDIR)
+	@echo "$@ started..."
+	$(PAGAI) -i $< -a " -o $@ -s z3_api --svcomp "
+	@echo "$@ finished..."
+
+$(TABLE_SVCOMP): $(JSON_SVCOMP) 
+	@touch $@
+
+$(JSON_SVCOMP): $(RESFILES_SVCOMP) 
+	@process_results_svcomp.py .. $(PWD) $(RESFILES_SVCOMP)
+
 
 ########## COMPARISON OF THE ABSTRACT DOMAINS
 
