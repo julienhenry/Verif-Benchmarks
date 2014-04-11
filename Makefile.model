@@ -70,7 +70,7 @@ realclean: clean
 
 $(RESDIR)%.svcomp.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	$(PAGAI) -i $< -a " -o $@ -s z3_api --svcomp "
+	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -a " -o $@ -s z3_api --svcomp "
 	@echo "$@ finished..."
 
 $(TABLE_SVCOMP): $(JSON_SVCOMP) 
