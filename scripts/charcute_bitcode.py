@@ -32,10 +32,11 @@ for line in open(args.filename):
     ctype = match.group(2)
     initializer = match.group(3)
     locals += "  %" + variable + " = alloca " + ctype + "\n"
+    localvariable = variable + ".pagai.local"
     if withinput:
         locals += "  %tmp" + variable + " = call " + ctype + " @gen_" + ctype + "()"+ "\n"
-        locals += "  store " + ctype + " %tmp" + variable + ", " + ctype + "* %" + variable+ "\n"
-    locals += "  store " + ctype + " " + initializer + ", " + ctype + "* %" + variable+ "\n"
+        locals += "  store " + ctype + " %tmp" + variable + ", " + ctype + "* %" + localvariable+ "\n"
+    locals += "  store " + ctype + " " + initializer + ", " + ctype + "* %" + localvariable+ "\n"
     variables.add(variable)
     types.add(ctype)
     globaldef += line + "\n"
@@ -56,8 +57,9 @@ for line in open(args.filename):
 
 
 for v in variables:
-    output = output.replace('@'+v+' ','%'+v+' ')
-    output = output.replace('@'+v+',','%'+v+',')
+    localv = v + ".pagai.local"
+    output = output.replace('@'+v+' ','%'+localv+' ')
+    output = output.replace('@'+v+',','%'+localv+',')
     output=re.sub(r'bitcast \((float|double|i32|i16|i8|i1)\* %'+v,
                 r'bitcast (\1* undef',
                 output)
