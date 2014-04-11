@@ -19,6 +19,7 @@ TABLE_NARROWING=table_N_S.tex
 TABLE_DOMAINS=table_domains.tex
 TABLE_SVCOMP=table_svcomp.tex
 JSON_SVCOMP=results_svcomp.json
+HTML_SVCOMP=results_svcomp.html
 
 all: compare_narrowing compare_domains
 
@@ -27,7 +28,7 @@ compare_all: timestamp_all.txt
 compare_narrowing: $(TABLE_NARROWING)
 compare_domains: $(TABLE_DOMAINS)
 
-svcomp: $(TABLE_SVCOMP)
+svcomp: $(TABLE_SVCOMP) $(HTML_SVCOMP)
 
 # abstract domain used for comparing techniques
 DOMAIN=pk
@@ -74,11 +75,13 @@ $(RESDIR)%.svcomp.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ finished..."
 
 $(TABLE_SVCOMP): $(JSON_SVCOMP) 
-	@touch $@
+	@build_table_svcomp.py $(JSON_SVCOMP) > $@
+
+$(HTML_SVCOMP): $(JSON_SVCOMP)
+	@build_html_svcomp.py $(JSON_SVCOMP) > $@
 
 $(JSON_SVCOMP): $(RESFILES_SVCOMP) 
 	@process_results_svcomp.py .. $(PWD) $(RESFILES_SVCOMP)
-
 
 ########## COMPARISON OF THE ABSTRACT DOMAINS
 
