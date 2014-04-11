@@ -31,8 +31,8 @@ for line in open(args.filename):
     variable = match.group(1)
     ctype = match.group(2)
     initializer = match.group(3)
-    locals += "  %" + variable + " = alloca " + ctype + "\n"
     localvariable = variable + ".pagai.local"
+    locals += "  %" + localvariable + " = alloca " + ctype + "\n"
     if withinput:
         locals += "  %tmp" + variable + " = call " + ctype + " @gen_" + ctype + "()"+ "\n"
         locals += "  store " + ctype + " %tmp" + variable + ", " + ctype + "* %" + localvariable+ "\n"
