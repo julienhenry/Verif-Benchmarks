@@ -77,7 +77,7 @@ $(RESDIR)%.pk.svcomp.res:  $(BCDIR)%.bc | $(RESDIR)
 
 $(RESDIR)%.box.svcomp.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -a " -o $@ -s z3_api --svcomp " 
+	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -a " -o $@ -s z3_api --svcomp --domain box " 
 	@echo "$@ finished..."
 
 $(TABLE_SVCOMP): $(JSON_SVCOMP) 
