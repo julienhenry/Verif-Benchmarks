@@ -50,20 +50,20 @@ $(RESDIR)%.narrowing.res:  $(BCDIR)%.bc | $(RESDIR)
 timestamp.txt: $(BCFILES)
 	@touch $@
 
-cmp_all.techniques.png: $(RESFILES_ALL)
+cmp_all.techniques.svg: $(RESFILES_ALL)
 	@process_results.py .. $(PWD) cmp_all $(RESFILES_ALL)
 
-cmp_narrowing.techniques.png: $(RESFILES_NARROWING)
+cmp_narrowing.techniques.svg: $(RESFILES_NARROWING)
 	@process_results.py .. $(PWD) cmp_narrowing $(RESFILES_NARROWING)
 
-$(TABLE_NARROWING): $(RESFILES_NARROWING) cmp_narrowing.techniques.png 
+$(TABLE_NARROWING): $(RESFILES_NARROWING) cmp_narrowing.techniques.svg 
 	@build_table_narrowing.py results.json > $@
 
-timestamp_all.txt: $(RESFILES_ALL) cmp_all.techniques.png
+timestamp_all.txt: $(RESFILES_ALL) cmp_all.techniques.svg
 	@touch $@
 
 clean:
-	rm -f $(RESDIR)*.res timestamp.txt timestamp_all.txt *.png
+	rm -f $(RESDIR)*.res timestamp.txt timestamp_all.txt *.svg
 
 realclean: clean
 	rm $(BCDIR)*.bc
@@ -124,9 +124,9 @@ $(RESDIR)%.domain.ppl_poly_bagnara.ppl_poly.res:  $(BCDIR)%.bc | $(RESDIR)
 	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain ppl_poly_bagnara --domain2 ppl_poly --timeout 600 --quiet --force-old-output "
 	@echo "$@ finished..."
 
-cmp_domains.png: $(RESFILES_DOMAINS)
+cmp_domains.svg: $(RESFILES_DOMAINS)
 	@process_results_domains.py .. $(PWD) cmp_domains $(RESFILES_DOMAINS)
 	@touch $@
 
-$(TABLE_DOMAINS): $(RESFILES_DOMAINS) cmp_domains.png 
+$(TABLE_DOMAINS): $(RESFILES_DOMAINS) cmp_domains.svg 
 	@build_table_domains.py $(TECHNIQUE_NAME) results.json > $@

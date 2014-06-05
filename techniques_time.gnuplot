@@ -1,5 +1,7 @@
-set terminal png medium
-set output "techniques_time.png"
+#set terminal png medium
+#set output "techniques_time.png"
+set terminal svg size 700,400 fname 'Verdana' fsize 10
+set output 'techniques_time.svg'
 #set terminal epslatex
 #set output "techniques_time.tex"
 set size 0.7,1

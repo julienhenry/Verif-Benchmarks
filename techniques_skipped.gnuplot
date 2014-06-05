@@ -1,5 +1,7 @@
-set terminal png medium
-set output "techniques_skipped.png"
+#set terminal png medium
+#set output "techniques_skipped.png"
+set terminal svg size 700,400 fname 'Verdana' fsize 10
+set output 'techniques_skipped.svg'
 #set terminal epslatex
 #set output "techniques_skipped.tex"
 set size 0.7,1

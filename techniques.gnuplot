@@ -1,7 +1,7 @@
-set terminal png medium
-set output "techniques.png"
-#set terminal svg size 850,400 fname 'Verdana' fsize 10
-#set output 'techniques.svg'
+#set terminal png medium
+#set output "techniques.png"
+set terminal svg size 850,400 fname 'Verdana' fsize 10
+set output 'techniques.svg'
 #set terminal epslatex
 #set output "techniques.tex"
 
