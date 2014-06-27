@@ -39,7 +39,7 @@ $(RESDIR):
 
 $(RESDIR)%.all.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	$(PAGAI) -i $< -a " -o $@ -s z3_api --domain $(DOMAIN) -c lw+pf -c pf_incr -c pf -c g -c lw -c s --timeout 600 --quiet --force-old-output "
+	$(PAGAI) -i $< -t 18000 -a " -o $@ -s z3_api --domain $(DOMAIN) -c lw+pf -c pf_incr -c pf -c g -c lw -c s --timeout 600 --quiet --force-old-output "
 	@echo "$@ finished..."
 
 $(RESDIR)%.narrowing.res:  $(BCDIR)%.bc | $(RESDIR)
@@ -93,35 +93,36 @@ $(JSON_SVCOMP): $(RESFILES_BOX_SVCOMP) $(RESFILES_PK_SVCOMP)
 
 TECHNIQUE=s
 TECHNIQUE_NAME=S
+TIMEOUT=800
 
 $(RESDIR)%.domain.pk.oct.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain pk --domain2 oct --timeout 600 --quiet --force-old-output "
+	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain pk --domain2 oct --timeout $(TIMEOUT) --quiet --force-old-output "
 	@echo "$@ finished..."
 
 $(RESDIR)%.domain.pk.box.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain pk --domain2 box --timeout 600 --quiet --force-old-output "
+	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain pk --domain2 box --timeout $(TIMEOUT) --quiet --force-old-output "
 	@echo "$@ finished..."
 
 $(RESDIR)%.domain.oct.box.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain oct --domain2 box --timeout 600 --quiet --force-old-output "
+	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain oct --domain2 box --timeout $(TIMEOUT) --quiet --force-old-output "
 	@echo "$@ finished..."
 
 $(RESDIR)%.domain.pkgrid.pk.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain pkgrid --domain2 pk --timeout 600 --quiet --force-old-output "
+	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain pkgrid --domain2 pk --timeout $(TIMEOUT) --quiet --force-old-output "
 	@echo "$@ finished..."
 
 $(RESDIR)%.domain.pkeq.pk.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain pkeq --domain2 pk --timeout 600 --quiet --force-old-output "
+	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain pkeq --domain2 pk --timeout $(TIMEOUT) --quiet --force-old-output "
 	@echo "$@ finished..."
 
 $(RESDIR)%.domain.ppl_poly_bagnara.ppl_poly.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain ppl_poly_bagnara --domain2 ppl_poly --timeout 600 --quiet --force-old-output "
+	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain ppl_poly_bagnara --domain2 ppl_poly --timeout $(TIMEOUT) --quiet --force-old-output "
 	@echo "$@ finished..."
 
 cmp_domains.svg: $(RESFILES_DOMAINS)
