@@ -8,16 +8,19 @@ RESFILES_BOX_SVCOMP=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.box.svcomp.res)
 RESFILES_PK_SVCOMP=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.pk.svcomp.res)
 
 # for comparing abstract domains
-RESFILES_PK_OCT=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.pk.oct.res)
-RESFILES_PK_BOX=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.pk.box.res)
-RESFILES_OCT_BOX=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.oct.box.res)
-RESFILES_PKGRID_PK=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.pkgrid.pk.res)
-RESFILES_PKEQ_PK=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.pkeq.pk.res)
-RESFILES_PPL_POLY_BAGNARA_PPL_POLY=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.ppl_poly_bagnara.ppl_poly.res)
+TECHNIQUE=s
+TECHNIQUE_NAME=S
+RESFILES_PK_OCT=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.$(TECHNIQUE).pk.oct.res)
+RESFILES_PK_BOX=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.$(TECHNIQUE).pk.box.res)
+RESFILES_OCT_BOX=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.$(TECHNIQUE).oct.box.res)
+RESFILES_PKGRID_PK=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.$(TECHNIQUE).pkgrid.pk.res)
+RESFILES_PKEQ_PK=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.$(TECHNIQUE).pkeq.pk.res)
+RESFILES_PPL_POLY_BAGNARA_PPL_POLY=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.domain.$(TECHNIQUE).ppl_poly_bagnara.ppl_poly.res)
 RESFILES_DOMAINS= $(RESFILES_PK_OCT) $(RESFILES_PK_BOX) $(RESFILES_OCT_BOX) $(RESFILES_PKGRID_PK) $(RESFILES_PKEQ_PK) $(RESFILES_PPL_POLY_BAGNARA_PPL_POLY)
 
 TABLE_NARROWING=table_N_S.tex
 TABLE_DOMAINS=table_domains.tex
+TABLE_DOMAINS_TIME=table_domains_time.tex
 TABLE_SVCOMP=table_svcomp.tex
 JSON_SVCOMP=results_svcomp.json
 HTML_SVCOMP=results_svcomp.html
@@ -27,7 +30,7 @@ all: compare_narrowing compare_domains
 compare_all: timestamp_all.txt
 
 compare_narrowing: $(TABLE_NARROWING)
-compare_domains: $(TABLE_DOMAINS)
+compare_domains: $(TABLE_DOMAINS) $(TABLE_DOMAINS_TIME)
 
 svcomp: $(TABLE_SVCOMP) $(HTML_SVCOMP)
 
@@ -91,42 +94,42 @@ $(JSON_SVCOMP): $(RESFILES_BOX_SVCOMP) $(RESFILES_PK_SVCOMP)
 
 ########## COMPARISON OF THE ABSTRACT DOMAINS
 
-TECHNIQUE=s
-TECHNIQUE_NAME=S
-
-$(RESDIR)%.domain.pk.oct.res:  $(BCDIR)%.bc | $(RESDIR)
+$(RESDIR)%.domain.$(TECHNIQUE).pk.oct.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
 	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain pk --domain2 oct --timeout 600 --quiet --force-old-output "
 	@echo "$@ finished..."
 
-$(RESDIR)%.domain.pk.box.res:  $(BCDIR)%.bc | $(RESDIR)
+$(RESDIR)%.domain.$(TECHNIQUE).pk.box.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
 	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain pk --domain2 box --timeout 600 --quiet --force-old-output "
 	@echo "$@ finished..."
 
-$(RESDIR)%.domain.oct.box.res:  $(BCDIR)%.bc | $(RESDIR)
+$(RESDIR)%.domain.$(TECHNIQUE).oct.box.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
 	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain oct --domain2 box --timeout 600 --quiet --force-old-output "
 	@echo "$@ finished..."
 
-$(RESDIR)%.domain.pkgrid.pk.res:  $(BCDIR)%.bc | $(RESDIR)
+$(RESDIR)%.domain.$(TECHNIQUE).pkgrid.pk.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
 	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain pkgrid --domain2 pk --timeout 600 --quiet --force-old-output "
 	@echo "$@ finished..."
 
-$(RESDIR)%.domain.pkeq.pk.res:  $(BCDIR)%.bc | $(RESDIR)
+$(RESDIR)%.domain.$(TECHNIQUE).pkeq.pk.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
 	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain pkeq --domain2 pk --timeout 600 --quiet --force-old-output "
 	@echo "$@ finished..."
 
-$(RESDIR)%.domain.ppl_poly_bagnara.ppl_poly.res:  $(BCDIR)%.bc | $(RESDIR)
+$(RESDIR)%.domain.$(TECHNIQUE).ppl_poly_bagnara.ppl_poly.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
 	$(PAGAI) -i $< -a " -o $@ -C -t $(TECHNIQUE) --domain ppl_poly_bagnara --domain2 ppl_poly --timeout 600 --quiet --force-old-output "
 	@echo "$@ finished..."
 
-cmp_domains.svg: $(RESFILES_DOMAINS)
+cmp_domains.$(TECHNIQUE).svg: $(RESFILES_DOMAINS)
 	@process_results_domains.py .. $(PWD) cmp_domains $(RESFILES_DOMAINS)
 	@touch $@
 
-$(TABLE_DOMAINS): $(RESFILES_DOMAINS) cmp_domains.svg 
+$(TABLE_DOMAINS): $(RESFILES_DOMAINS) cmp_domains.$(TECHNIQUE).svg 
 	@build_table_domains.py $(TECHNIQUE_NAME) results.json > $@
+
+$(TABLE_DOMAINS_TIME): $(RESFILES_DOMAINS) cmp_domains.$(TECHNIQUE).svg 
+	@build_table_domains_time.py $(TECHNIQUE_NAME) results.json > $@
