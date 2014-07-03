@@ -6,6 +6,8 @@ RESFILES_ALL=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.all.res)
 RESFILES_NARROWING=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.narrowing.res)
 RESFILES_BOX_SVCOMP=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.box.svcomp.res)
 RESFILES_PK_SVCOMP=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.pk.svcomp.res)
+RESFILES_PK_O3_SVCOMP=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.pk.O3.svcomp.res)
+RESFILES_BOX_O3_SVCOMP=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.box.O3.svcomp.res)
 
 # for comparing abstract domains
 TECHNIQUE=s
@@ -37,12 +39,16 @@ svcomp: $(TABLE_SVCOMP) $(HTML_SVCOMP)
 # abstract domain used for comparing techniques
 DOMAIN=pk
 
+ifdef SKIPNONLINEAR
+	NONLINEAR=--skipnonlinear
+endif
+
 $(RESDIR): 
 	@mkdir $(RESDIR)
 
 $(RESDIR)%.all.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	$(PAGAI) -i $< -t 18000 -a " -o $@ -s z3_api --domain $(DOMAIN) -c lw+pf -c pf_incr -c pf -c g -c lw -c s --timeout 600 --quiet --force-old-output "
+	$(PAGAI) -i $< -t 18000 -a " -o $@ -s z3_api --domain $(DOMAIN) -c lw+pf -c pf_incr -c pf -c g -c lw -c s --timeout 600 --quiet --force-old-output $(NONLINEAR)"
 	@echo "$@ finished..."
 
 $(RESDIR)%.narrowing.res:  $(BCDIR)%.bc | $(RESDIR)
@@ -72,15 +78,24 @@ realclean: clean
 	rm $(BCDIR)*.bc
 
 ########## SVCOMP style
-
 $(RESDIR)%.pk.svcomp.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -a " -o $@ -s z3_api --svcomp " 
+	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -a " -o $@ -s z3_api --svcomp  $(NONLINEAR)" 
 	@echo "$@ finished..."
 
 $(RESDIR)%.box.svcomp.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -a " -o $@ -s z3_api --svcomp --domain box " 
+	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -a " -o $@ -s z3_api --svcomp --domain box  $(NONLINEAR)" 
+	@echo "$@ finished..."
+
+$(RESDIR)%.pk.O3.svcomp.res:  $(BCDIR)%.bc | $(RESDIR)
+	@echo "$@ started..."
+	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -a " -O -o $@ -s z3_api --svcomp  $(NONLINEAR)" 
+	@echo "$@ finished..."
+
+$(RESDIR)%.box.O3.svcomp.res:  $(BCDIR)%.bc | $(RESDIR)
+	@echo "$@ started..."
+	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -a " -O -o $@ -s z3_api --svcomp --domain box  $(NONLINEAR)" 
 	@echo "$@ finished..."
 
 $(TABLE_SVCOMP): $(JSON_SVCOMP) 
@@ -89,7 +104,8 @@ $(TABLE_SVCOMP): $(JSON_SVCOMP)
 $(HTML_SVCOMP): $(JSON_SVCOMP)
 	@build_html_svcomp.py $(JSON_SVCOMP) > $@
 
-$(JSON_SVCOMP): $(RESFILES_BOX_SVCOMP) $(RESFILES_PK_SVCOMP) 
+$(JSON_SVCOMP): $(RESFILES_BOX_SVCOMP) $(RESFILES_PK_SVCOMP)  $(RESFILES_BOX_O3_SVCOMP) $(RESFILES_PK_O3_SVCOMP) 
+
 	@process_results_svcomp.py .. $(PWD) $(RESFILES_BOX_SVCOMP) $(RESFILES_PK_SVCOMP)
 
 ########## COMPARISON OF THE ABSTRACT DOMAINS
