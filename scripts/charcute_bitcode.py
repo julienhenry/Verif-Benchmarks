@@ -13,6 +13,7 @@ output=""
 input=""
 locals=""
 globaldef=""
+typedecl=""
 metadata=""
 
 nbfunctions=0
@@ -28,6 +29,7 @@ for line in open(args.filename):
   #match=re.match('@([A-Za-z0-9_.]+) =(?: external| internal| common)?(?: unnamed_addr)? global (float|double|i32|i16|i8|i1) ?([0-9.e+-]+|true|false)?(?:, align 4)?', line)
   match=re.match('@([A-Za-z0-9_.]+) =(?: external| internal| common)?(?: unnamed_addr)? (?:global|constant)? (float|double|i32|i16|i8|i1)[^\*] ?([A-Z0-9.e+-x]+|true|false)?(?:, align 4)', line)
   if match:
+    # this is the declaration of a global variable that can be turned to local
     variable = match.group(1)
     ctype = match.group(2)
     initializer = match.group(3)
@@ -45,7 +47,15 @@ for line in open(args.filename):
     if match:
         metadata += line + "\n"
     else:
-        output += line + "\n"
+        match = re.match('@([A-Za-z0-9_.]+) = (?:external|internal|common|private)[^\n]*',line)
+        if match:
+            globaldef += line + "\n"
+        else:
+            match = re.match('%([A-Za-z0-9_.]+) = type[^\n]*',line)
+            if match:
+                typedecl += line + "\n"
+            else:
+                output += line + "\n"
 
     # check if the line defines a function
     # if the bitcode contains several functions, we cannot move globals to
@@ -60,8 +70,8 @@ for v in variables:
     localv = v + ".pagai.local"
     output = output.replace('@'+v+' ','%'+localv+' ')
     output = output.replace('@'+v+',','%'+localv+',')
-    output=re.sub(r'bitcast \((float|double|i32|i16|i8|i1)\* %'+v,
-                r'bitcast (\1* undef',
+    output=re.sub(r'bitcast \((float|double|i32|i16|i8|i1)\* %'+localv,
+                r'bitcast (\1* @' + v,
                 output)
 
 #match=re.search('define (?:void|i32|i8) @([A-Za-z0-9_.]+)\([^\)]*\)[A-Za-z]*\{',output)
@@ -73,7 +83,7 @@ else:
 
 output = output.replace(first_label+':\n',first_label+':\n'+locals)
 
-output = output.replace('\n\n', '\n\n'+globaldef,1)
+output = output.replace('\n\n', '\n\n'+typedecl+'\n'+globaldef,1)
 
 if withinput:
     for t in types:
