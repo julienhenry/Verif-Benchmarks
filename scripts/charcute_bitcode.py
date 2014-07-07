@@ -60,7 +60,7 @@ for line in open(args.filename):
     # check if the line defines a function
     # if the bitcode contains several functions, we cannot move globals to
     # locals
-    match=re.search('define (?:[A-Za-z0-9_.]+) @([A-Za-z0-9_.]+)(?:[^\n]*){',line)
+    match=re.search('define [^{]*{',line)
     if match:
         nbfunctions+=1
 

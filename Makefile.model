@@ -1,13 +1,17 @@
 BCDIR=bc/
 RESDIR=res/
+PATCHEDDIR=patched/
 PAGAI=pagai.sh
+UFO=/local/henry/ufo-svcomp13/bin/ufo-svcomp-par.py
 BCFILES=${wildcard $(BCDIR)*.bc}
+PATCHEDCFILES=${wildcard $(PATCHEDIR)*.c}
 RESFILES_ALL=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.all.res)
 RESFILES_NARROWING=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.narrowing.res)
 RESFILES_BOX_SVCOMP=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.box.svcomp.res)
 RESFILES_PK_SVCOMP=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.pk.svcomp.res)
 RESFILES_PK_O3_SVCOMP=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.pk.O3.svcomp.res)
 RESFILES_BOX_O3_SVCOMP=$(BCFILES:$(BCDIR)%.bc=$(RESDIR)%.box.O3.svcomp.res)
+RESFILES_UFO_SVCOMP=$(PATCHEDCFILES:%.c=$(RESDIR)%.ufo.svcomp.res)
 
 # for comparing abstract domains
 TECHNIQUE=s
@@ -80,22 +84,27 @@ realclean: clean
 ########## SVCOMP style
 $(RESDIR)%.pk.svcomp.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -a " -o $@ -s z3_api --svcomp  $(NONLINEAR)" 
+	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -t 1000 -a " -o $@ -s z3_api --svcomp  $(NONLINEAR)" 
 	@echo "$@ finished..."
 
 $(RESDIR)%.box.svcomp.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -a " -o $@ -s z3_api --svcomp --domain box  $(NONLINEAR)" 
+	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -t 1000 -a " -o $@ -s z3_api --svcomp --domain box  $(NONLINEAR)" 
 	@echo "$@ finished..."
 
 $(RESDIR)%.pk.O3.svcomp.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -a " -O -o $@ -s z3_api --svcomp  $(NONLINEAR)" 
+	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -t 1000 -a " -O -o $@ -s z3_api --svcomp  $(NONLINEAR)" 
 	@echo "$@ finished..."
 
 $(RESDIR)%.box.O3.svcomp.res:  $(BCDIR)%.bc | $(RESDIR)
 	@echo "$@ started..."
-	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -a " -O -o $@ -s z3_api --svcomp --domain box  $(NONLINEAR)" 
+	 /usr/bin/time -f "TIME: %e" -o $@ -a $(PAGAI) -i $< -t 1000 -a " -O -o $@ -s z3_api --svcomp --domain box  $(NONLINEAR)" 
+	@echo "$@ finished..."
+
+$(RESDIR)%.ufo.svcomp.res:  $(PATCHEDIR)%.c | $(RESDIR)
+	@echo "$@ started..."
+	 /usr/bin/time -f "TIME: %e" -o $@ -a $(UFO) $< 2> $@
 	@echo "$@ finished..."
 
 $(TABLE_SVCOMP): $(JSON_SVCOMP) 
@@ -104,9 +113,9 @@ $(TABLE_SVCOMP): $(JSON_SVCOMP)
 $(HTML_SVCOMP): $(JSON_SVCOMP)
 	@build_html_svcomp.py $(JSON_SVCOMP) > $@
 
-$(JSON_SVCOMP): $(RESFILES_BOX_SVCOMP) $(RESFILES_PK_SVCOMP)  $(RESFILES_BOX_O3_SVCOMP) $(RESFILES_PK_O3_SVCOMP) 
-
-	@process_results_svcomp.py .. $(PWD) $(RESFILES_BOX_SVCOMP) $(RESFILES_PK_SVCOMP)
+#$(JSON_SVCOMP): $(RESFILES_BOX_SVCOMP) $(RESFILES_PK_SVCOMP)  $(RESFILES_BOX_O3_SVCOMP) $(RESFILES_PK_O3_SVCOMP)  $(RESFILES_UFO_SVCOMP)
+$(JSON_SVCOMP): $(RESFILES_BOX_SVCOMP) $(RESFILES_PK_SVCOMP)  $(RESFILES_BOX_O3_SVCOMP) $(RESFILES_PK_O3_SVCOMP)
+	@process_results_svcomp.py .. $(PWD) $(RESFILES_BOX_SVCOMP) $(RESFILES_PK_SVCOMP) $(RESFILES_BOX_O3_SVCOMP) $(RESFILES_PK_O3_SVCOMP) 
 
 ########## COMPARISON OF THE ABSTRACT DOMAINS
 

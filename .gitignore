@@ -1,2 +1,9 @@
 *.o
 *.ll
+*.bc
+*.json
+*.tex
+*.svg
+*.png
+*.res
+timestamp*
