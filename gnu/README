@@ -1,0 +1,9 @@
+
+# Standard compilation
+CC=wllvm CFLAGS="-g" ./configure
+make
+
+# Trap on overflows
+CC=wllvm CFLAGS="-g -ftrapv -fsanitize=local-bounds" ./configure
+make
+

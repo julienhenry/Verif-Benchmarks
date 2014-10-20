@@ -2,14 +2,16 @@ SCRIPTDIR=../scripts/
 
 LL_DIR=./ll/
 BC_DIR=./bc/
+PATCHEDDIR=./patched/
 
 CFILES=${wildcard *.c}
+PATCHEDCFILES=${wildcard $(PATCHEDDIR)*.c}
 IFILES=${wildcard *.i} $(CFILES:%.c=%.i)
-BCFILES=$(IFILES:%.i=$(BC_DIR)/%.bc) 
+#BCFILES=$(IFILES:%.i=$(BC_DIR)/%.bc) 
+BCFILES=$(PATCHEDFILES:$(PATCHEDDIR)/%.c=$(BC_DIR)/%.bc) 
 LLFILES=$(BCFILES:$(BC_DIR)/%.bc=$(LL_DIR)/%.ll)
 
-PATCHEDDIR=./patched/
-PATCHEDCFILES=$(IFILES:%.i=$(PATCHEDDIR)/%.c)
+#PATCHEDCFILES=$(IFILES:%.i=$(PATCHEDDIR)/%.c)
 
 all: $(BCFILES) $(LLFILES)
 
